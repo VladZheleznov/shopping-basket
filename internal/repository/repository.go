@@ -1,15 +1,15 @@
 package repository
 
 import (
-	"context"
+	"github.com/VladZheleznov/shopping-basket/internal/model"
 
-	"shopping-basket/internal/model"
+	"context"
 )
 
 type Repository interface {
-	CreateUser(ctx context.Context, p *model.Product) (string, error)
-	GetUserByID(ctx context.Context, idProduct string) (*model.Product, error)
-	GetAllUsers(ctx context.Context) ([]*model.Product, error)
-	DeleteUser(ctx context.Context, id string) error
-	UpdateUser(ctx context.Context, id string, pro *model.Product) error
+	AddItem(ctx context.Context, p *model.Product) (string, error)
+	GetItemByID(ctx context.Context, idProduct string) (*model.Product, error)
+	GetAllItems(ctx context.Context) ([]*model.Product, error)
+	DeleteItem(ctx context.Context, id string) error
+	UpdateItem(ctx context.Context, id string, pro *model.Product) error
 }

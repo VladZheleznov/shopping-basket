@@ -1,0 +1,57 @@
+syntax = "proto3";
+option go_package = ".";
+
+
+ service CRUD{
+  rpc Registration(RegistrationRequest)returns(RegistrationResponse){};
+  rpc GetItem(GetItemRequest)returns(GetItemResponse){};
+  rpc GetAllItems(GetAllItemsRequest)returns(GetAllItemsResponse);
+  rpc DeleteItem(DeleteItemRequest)returns(Response);
+  rpc UpdateItem(UpdateItemRequest)returns(Response);
+ }
+
+
+message GetAllItemsRequest{}
+
+
+message UpdateItemRequest{
+  Product product = 1;
+  string id = 2;
+}
+
+message RegistrationRequest{
+  string name = 2;
+  float price = 3;
+  int32 quantity = 4;
+}
+
+
+
+message GetItemRequest{
+  string id = 1;
+}
+
+message DeleteItemRequest{
+  string id = 1;
+}
+
+message GetItemResponse{
+   Product product = 1;
+}
+
+message RegistrationResponse{
+  string id = 1;
+}
+
+message GetAllItemsResponse{
+  repeated Product product = 1;
+}
+
+message Response{}
+
+message Product{
+  string id = 1;
+  string name = 2;
+  float price = 3;
+  int32 quantity = 4;
+}
