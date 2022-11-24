@@ -18,6 +18,19 @@ func NewServer(serv *service.Service) *Server {
 	return &Server{se: serv}
 }
 
+func (s *Server) Registration(ctx context.Context, request *pb.RegistrationRequest) (*pb.RegistrationResponse, error) {
+	p := model.Product{
+		Name:     request.Name,
+		Price:    request.Price,
+		Quantity: request.Quantity,
+	}
+	newID, err := s.se.AddItem(ctx, &p)
+	if err != nil {
+		return nil, err
+	}
+	return &pb.RegistrationResponse{Id: newID}, nil
+}
+
 // GetItem get item by id from db
 func (s *Server) GetItem(ctx context.Context, request *pb.GetItemRequest) (*pb.GetItemResponse, error) {
 	idProduct := request.GetId()

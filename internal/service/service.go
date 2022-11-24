@@ -16,6 +16,11 @@ func NewService(pool repository.Repository) *Service {
 	return &Service{rps: pool}
 }
 
+// AddItem
+func (se *Service) AddItem(ctx context.Context, p *model.Product) (string, error) {
+	return se.rps.AddItem(ctx, p)
+}
+
 // GetItem _
 func (se *Service) GetItem(ctx context.Context, id string) (*model.Product, error) {
 	return se.rps.GetItemByID(ctx, id)

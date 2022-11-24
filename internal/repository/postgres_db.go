@@ -16,7 +16,7 @@ type PRepository struct {
 }
 
 // AddItem add item to db
-func (p *PRepository) AddItem(ctx context.Context, product model.Product) (string, error) {
+func (p *PRepository) AddItem(ctx context.Context, product *model.Product) (string, error) {
 	newID := uuid.New().String()
 	_, err := p.Pool.Exec(ctx, "insert into products(id,name,price,quantity) values($1,$2,$3,$4)",
 		newID, &product.Name, &product.Price, &product.Quantity)
@@ -40,8 +40,8 @@ func (p *PRepository) GetItemByID(ctx context.Context, idProduct string) (*model
 	return &u, nil
 }
 
-// GetAllProducts select all products from db
-func (p *PRepository) GetAllProducts(ctx context.Context) ([]*model.Product, error) {
+// GetAllItems select all items from db
+func (p *PRepository) GetAllItems(ctx context.Context) ([]*model.Product, error) {
 	var products []*model.Product
 	rows, err := p.Pool.Query(ctx, "select id,name,price,quantity from products")
 	if err != nil {
