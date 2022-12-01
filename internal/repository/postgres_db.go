@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/pgxpool"
+	"github.com/labstack/gommon/log"
 )
 
 // PRepository p
@@ -21,7 +22,8 @@ func (p *PRepository) AddItem(ctx context.Context, product *model.Product) (stri
 	_, err := p.Pool.Exec(ctx, "insert into products(id,name,price,quantity) values($1,$2,$3,$4)",
 		newID, &product.Name, &product.Price, &product.Quantity)
 	if err != nil {
-		panic(err)
+		log.Errorf("database error with create item: %v", err)
+		return "", err
 	}
 	return newID, nil
 }
@@ -33,9 +35,10 @@ func (p *PRepository) GetItemByID(ctx context.Context, idProduct string) (*model
 		&u.ID, &u.Name, &u.Price, &u.Quantity)
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return &model.Product{}, fmt.Errorf("user with this id doesnt exist: %v", err)
+			return &model.Product{}, fmt.Errorf("item with this id doesnt exist: %v", err)
 		}
-		panic(err)
+		log.Errorf("database error, select by id: %v", err)
+		return &model.Product{}, err
 	}
 	return &u, nil
 }
@@ -45,14 +48,16 @@ func (p *PRepository) GetAllItems(ctx context.Context) ([]*model.Product, error)
 	var products []*model.Product
 	rows, err := p.Pool.Query(ctx, "select id,name,price,quantity from products")
 	if err != nil {
-		panic(err)
+		log.Errorf("database error with select all items, %v", err)
+		return nil, err
 	}
 	defer rows.Close()
 	for rows.Next() {
 		pro := model.Product{}
 		err = rows.Scan(&pro.ID, &pro.Name, &pro.Price, &pro.Quantity)
 		if err != nil {
-			panic(err)
+			log.Errorf("database error with select all items, %v", err)
+			return nil, err
 		}
 		products = append(products, &pro)
 	}
@@ -64,13 +69,14 @@ func (p *PRepository) GetAllItems(ctx context.Context) ([]*model.Product, error)
 func (p *PRepository) DeleteItem(ctx context.Context, id string) error {
 	a, err := p.Pool.Exec(ctx, "delete from products where id=$1", id)
 	if a.RowsAffected() == 0 {
-		return fmt.Errorf("user with this id doesnt exist")
+		return fmt.Errorf("item with this id doesnt exist")
 	}
 	if err != nil {
 		if err == pgx.ErrNoRows {
-			return fmt.Errorf("user with this id doesnt exist: %v", err)
+			return fmt.Errorf("item with this id doesnt exist: %v", err)
 		}
-		panic(err)
+		log.Errorf("error with delete item %v", err)
+		return err
 	}
 	return nil
 }
@@ -79,10 +85,11 @@ func (p *PRepository) DeleteItem(ctx context.Context, id string) error {
 func (p *PRepository) UpdateItem(ctx context.Context, id string, pro *model.Product) error {
 	a, err := p.Pool.Exec(ctx, "update products set name=$1,price=$2,quantity=$3 where id=$4", &pro.Name, &pro.Price, &pro.Quantity, id)
 	if a.RowsAffected() == 0 {
-		return fmt.Errorf("user with this id doesnt exist")
+		return fmt.Errorf("item with this id doesnt exist")
 	}
 	if err != nil {
-		panic(err)
+		log.Errorf("error with update item %v", err)
+		return err
 	}
 	return nil
 }
